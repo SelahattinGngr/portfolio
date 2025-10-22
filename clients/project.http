@@ -1,0 +1,30 @@
+@url = http://localhost:8080/api
+
+### Get All Projects
+GET {{url}}/projects
+Accept: application/json
+
+### Get Project by ID
+GET {{url}}/projects/{id}
+Accept: application/json
+
+### Create New Project
+POST {{url}}/projects
+Content-Type: application/json
+{
+    "title": "New Project",
+    "description": "Description of the new project",
+    "url": "http://newproject.com"
+}
+
+### Update Existing Project
+PUT {{url}}/projects/{id}
+Content-Type: application/json
+{
+    "title": "Updated Project Title",
+    "description": "Updated description",
+    "url": "http://updatedproject.com"
+}
+
+### Delete Project
+DELETE {{url}}/projects/{id}
