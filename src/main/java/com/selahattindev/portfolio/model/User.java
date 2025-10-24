@@ -1,10 +1,13 @@
 package com.selahattindev.portfolio.model;
 
+import java.sql.Timestamp;
+
 import com.selahattindev.portfolio.utils.Roles;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,16 +23,31 @@ public class User extends BaseModel {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @Column(name = "password", nullable = false)
+    private String password;
 
-    @Column(name = "role", nullable = false)
-    private String role;
+    @Column(name = "roles", nullable = false)
+    private String roles;
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
+    @Column(name = "access_token")
+    private String accessToken;
 
     @PrePersist
     public void prePersist() {
-        this.username = "";
-        this.passwordHash = "";
-        this.role = Roles.USER.name();
+        if (this.roles == null) {
+            this.roles = Roles.USER.name();
+        }
+
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        this.setCreatedAt(now);
+        this.setUpdatedAt(now);
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
     }
 }

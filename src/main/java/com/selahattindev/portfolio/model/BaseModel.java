@@ -7,8 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import lombok.Data;
 
 @Data
@@ -25,15 +23,4 @@ public class BaseModel {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @PrePersist
-    public void prePersist() {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        this.createdAt = now;
-        this.updatedAt = now;
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
-    }
 }

@@ -112,7 +112,20 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- <dependency>
+            <groupId>com.selahattindev</groupId>
+            <artifactId>user-library</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency> -->
 	</dependencies>
+
+	<repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/SelahattinGngr/user-library</url>
+        </repository>
+    </repositories>
 
 	<build>
 		<plugins>
