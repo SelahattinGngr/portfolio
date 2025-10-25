@@ -15,6 +15,4 @@ public class UserResponseDto {
 
     private String username;
     private String role;
-    private String accessToken;
-    private String refreshToken;
 }

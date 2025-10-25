@@ -29,12 +29,6 @@ public class User extends BaseModel {
     @Column(name = "roles", nullable = false)
     private String roles;
 
-    @Column(name = "refresh_token")
-    private String refreshToken;
-
-    @Column(name = "access_token")
-    private String accessToken;
-
     @PrePersist
     public void prePersist() {
         if (this.roles == null) {

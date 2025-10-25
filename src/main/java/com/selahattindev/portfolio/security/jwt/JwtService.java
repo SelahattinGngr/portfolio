@@ -4,92 +4,82 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${selahattindev.jwt.accessSecretKey}")
-    private String accessSecretKey;
-
-    @Value("${selahattindev.jwt.refreshSecretKey}")
-    private String refreshSecretKey;
-
-    private static final long ACCESS_TOKEN_EXPIRATION_MS = 15 * 60 * 1000;
-
-    private static final long REFRESH_TOKEN_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000;
+    private final JwtDto jwtDto;
 
     private SecretKey getAccessSigningKey() {
-        return Keys.hmacShaKeyFor(accessSecretKey.getBytes());
+        return Keys.hmacShaKeyFor(jwtDto.getAccessSecretKey().getBytes());
     }
 
     private SecretKey getRefreshSigningKey() {
-        return Keys.hmacShaKeyFor(refreshSecretKey.getBytes());
+        return Keys.hmacShaKeyFor(jwtDto.getRefreshSecretKey().getBytes());
+    }
+
+    private String generateToken(String username, long expirationMs, SecretKey key) {
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(key, Jwts.SIG.HS256)
+                .compact();
     }
 
     public String generateAccessToken(String username) {
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MS))
-                .signWith(getAccessSigningKey(), Jwts.SIG.HS256)
-                .compact();
+        return generateToken(username, jwtDto.getACCESS_TOKEN_EXPIRATION_MS(), getAccessSigningKey());
     }
 
     public String generateRefreshToken(String username) {
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_MS))
-                .signWith(getRefreshSigningKey(), Jwts.SIG.HS256)
-                .compact();
+        return generateToken(username, jwtDto.getREFRESH_TOKEN_EXPIRATION_MS(), getRefreshSigningKey());
+    }
+
+    private String extractUsername(String token, SecretKey key) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 
     public String extractUsernameFromAccessToken(String token) {
-        return Jwts.parser()
-                .verifyWith(getAccessSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+        return this.extractUsername(token, getAccessSigningKey());
     }
 
     public String extractUsernameFromRefreshToken(String token) {
-        return Jwts.parser()
-                .verifyWith(getRefreshSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+        return this.extractUsername(token, getRefreshSigningKey());
+    }
+
+    private boolean validateToken(String token, SecretKey key) {
+        try {
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("Token validation failed: {}", e.getMessage());
+            return false;
+        }
     }
 
     public boolean validateAccessToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getAccessSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+        return validateToken(token, getAccessSigningKey());
     }
 
     public boolean validateRefreshToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getRefreshSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+        return validateToken(token, getRefreshSigningKey());
     }
 
     private boolean isTokenExpired(String token, SecretKey key) {

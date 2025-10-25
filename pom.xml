@@ -46,10 +46,10 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
-		</dependency> -->
+		</dependency>
 		<dependency>
 		    <groupId>com.h2database</groupId>
 		    <artifactId>h2</artifactId>
@@ -112,11 +112,14 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- <dependency>
-            <groupId>com.selahattindev</groupId>
-            <artifactId>user-library</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency> -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.session</groupId>
+		    <artifactId>spring-session-data-redis</artifactId>
+		</dependency>
 	</dependencies>
 
 	<repositories>

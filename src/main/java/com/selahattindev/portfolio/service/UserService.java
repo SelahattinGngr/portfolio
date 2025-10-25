@@ -19,9 +19,7 @@ public class UserService {
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(user -> new UserResponseDto(user.getUsername(),
-                        user.getRoles(),
-                        user.getAccessToken(),
-                        user.getRefreshToken()))
+                        user.getRoles()))
                 .toList();
 
     }
