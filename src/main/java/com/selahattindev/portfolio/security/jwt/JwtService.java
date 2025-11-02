@@ -6,6 +6,9 @@ import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
+import com.selahattindev.portfolio.security.service.UserDetailsImpl;
+import com.selahattindev.portfolio.security.token.TokenProvider;
+
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -15,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtService {
+public class JwtService implements TokenProvider {
 
     private final JwtDto jwtDto;
 
@@ -27,21 +30,66 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtDto.getRefreshSecretKey().getBytes());
     }
 
-    private String generateToken(String username, long expirationMs, SecretKey key) {
+    private String generateToken(String username, String role, long expirationMs, SecretKey key) {
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 
-    public String generateAccessToken(String username) {
-        return generateToken(username, jwtDto.getACCESS_TOKEN_EXPIRATION_MS(), getAccessSigningKey());
+    // ---- Implementations of TokenProvider ----
+
+    @Override
+    public String generateAccessToken(org.springframework.security.core.userdetails.UserDetails userDetails) {
+        String role = (userDetails instanceof UserDetailsImpl u) ? u.getRole() : "USER";
+        return generateToken(userDetails.getUsername(), role,
+                jwtDto.getACCESS_TOKEN_EXPIRATION_MS(), getAccessSigningKey());
     }
 
-    public String generateRefreshToken(String username) {
-        return generateToken(username, jwtDto.getREFRESH_TOKEN_EXPIRATION_MS(), getRefreshSigningKey());
+    @Override
+    public String generateRefreshToken(org.springframework.security.core.userdetails.UserDetails userDetails) {
+        String role = (userDetails instanceof UserDetailsImpl u) ? u.getRole() : "USER";
+        return generateToken(userDetails.getUsername(), role,
+                jwtDto.getREFRESH_TOKEN_EXPIRATION_MS(), getRefreshSigningKey());
+    }
+
+    @Override
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, getAccessSigningKey());
+    }
+
+    @Override
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, getRefreshSigningKey());
+    }
+
+    @Override
+    public String extractUsernameFromAccessToken(String token) {
+        return extractUsername(token, getAccessSigningKey());
+    }
+
+    @Override
+    public String extractUsernameFromRefreshToken(String token) {
+        return extractUsername(token, getRefreshSigningKey());
+    }
+
+    @Override
+    public String extractRoleFromAccessToken(String token) {
+        return extractRole(token);
+    }
+
+    // ---- JWT-specific utilities ----
+
+    public String extractRole(String token) {
+        return Jwts.parser()
+                .verifyWith(getAccessSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
     }
 
     private String extractUsername(String token, SecretKey key) {
@@ -51,14 +99,6 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
-    }
-
-    public String extractUsernameFromAccessToken(String token) {
-        return this.extractUsername(token, getAccessSigningKey());
-    }
-
-    public String extractUsernameFromRefreshToken(String token) {
-        return this.extractUsername(token, getRefreshSigningKey());
     }
 
     private boolean validateToken(String token, SecretKey key) {
@@ -72,14 +112,6 @@ public class JwtService {
             log.warn("Token validation failed: {}", e.getMessage());
             return false;
         }
-    }
-
-    public boolean validateAccessToken(String token) {
-        return validateToken(token, getAccessSigningKey());
-    }
-
-    public boolean validateRefreshToken(String token) {
-        return validateToken(token, getRefreshSigningKey());
     }
 
     private boolean isTokenExpired(String token, SecretKey key) {

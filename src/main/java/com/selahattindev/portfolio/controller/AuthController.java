@@ -12,16 +12,14 @@ import com.selahattindev.portfolio.dto.UserResponseDto;
 import com.selahattindev.portfolio.service.AuthService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
     @PostMapping("/signin")
     public ResponseEntity<UserResponseDto> signin(@RequestBody UserRequestDto dto, HttpServletResponse response) {
@@ -44,15 +42,6 @@ public class AuthController {
         return ResponseEntity.ok("Access token refreshed");
     }
 
-    @PostMapping("/refresh/access-token")
-    public ResponseEntity<String> getAccessToken(@CookieValue(name = "refreshToken") String refreshToken,
-            @CookieValue(name = "deviceId") String deviceId,
-            HttpServletResponse response) {
-        authService.getAccessToken(refreshToken, deviceId, response);
-        return ResponseEntity.ok("Access token refreshed");
-    }
-
-    // TODO: arrow function ile handle methodunu ekle
     // @PostMapping("/test")
     // public ResponseEntity<String> testEndpoint() {
     // return handle(() -> authService.testService());

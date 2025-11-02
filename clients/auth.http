@@ -1,7 +1,7 @@
-@url = http://localhost:8080/auth
+@url = http://localhost:5353/auth
 
-### login
-POST {{url}}/login HTTP/1.1
+### signin
+POST {{url}}/signin HTTP/1.1
 Content-Type: application/json
 
 {
@@ -9,8 +9,8 @@ Content-Type: application/json
   "password": "Adminpass1."
 }
 
-### login
-POST {{url}}/login HTTP/1.1
+### signin
+POST {{url}}/signin HTTP/1.1
 Content-Type: application/json
 
 {
@@ -20,4 +20,5 @@ Content-Type: application/json
 
 ### get all users
 
-GET  http://localhost:8080/users/get-all-users HTTP/1.1
+GET  http://localhost:5353/users/get-all-users HTTP/1.1
+credentials: include

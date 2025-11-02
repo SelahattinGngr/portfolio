@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
 public class ProjectController {
+
     private final ProjectService projectService;
 
     @GetMapping
