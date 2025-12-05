@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.selahattindev.portfolio.dto.UserResponseDto;
+import com.selahattindev.portfolio.dto.SigninResponseDto;
 import com.selahattindev.portfolio.service.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,9 +22,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/get-all-users")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public List<UserResponseDto> getAllUsers(@CookieValue(name = "accessToken") String accessToken,
+    @PreAuthorize("hasAuthority('ROLE_ADMIN'))")
+    public List<SigninResponseDto> getAllUsers(@CookieValue String accessToken,
             HttpServletResponse response) {
-        return userService.getAllUsers(accessToken, response);
+        return userService.getAllUsers(accessToken);
     }
 }

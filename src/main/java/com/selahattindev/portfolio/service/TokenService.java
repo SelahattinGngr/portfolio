@@ -17,7 +17,7 @@ public class TokenService {
 
     public void storeToken(String username, CookieDto dto) {
         tokenStoreService.storeToken(username, dto.getDeviceId(), dto.getRefreshToken(),
-                jwtDto.getREFRESH_TOKEN_EXPIRATION_MS());
+                jwtDto.getRefreshTokenExpirationMs());
     }
 
     public void deleteToken(String username, String deviceId) {

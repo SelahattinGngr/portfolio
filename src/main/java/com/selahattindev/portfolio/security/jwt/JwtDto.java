@@ -11,6 +11,6 @@ import lombok.Data;
 public class JwtDto {
     private String accessSecretKey;
     private String refreshSecretKey;
-    private long ACCESS_TOKEN_EXPIRATION_MS;
-    private long REFRESH_TOKEN_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000;
+    private long accessTokenExpirationMs;
+    private long refreshTokenExpirationMs = 7 * 24 * 60 * 60 * 1000;
 }

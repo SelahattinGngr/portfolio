@@ -6,8 +6,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.selahattindev.portfolio.dto.CookieDto;
-import com.selahattindev.portfolio.dto.UserRequestDto;
-import com.selahattindev.portfolio.dto.UserResponseDto;
+import com.selahattindev.portfolio.dto.SigninRequestDto;
+import com.selahattindev.portfolio.dto.SigninResponseDto;
+import com.selahattindev.portfolio.dto.SignupRequestDto;
 import com.selahattindev.portfolio.factory.CookieFactory;
 import com.selahattindev.portfolio.security.service.UserDetailsImpl;
 import com.selahattindev.portfolio.security.service.UserDetailsServiceImpl;
@@ -27,7 +28,8 @@ public class AuthService {
         private final CookieService cookieService;
         private final TokenService tokenService;
 
-        public UserResponseDto signin(UserRequestDto dto, HttpServletResponse response) {
+        public SigninResponseDto signin(SigninRequestDto dto, HttpServletResponse response) {
+                userDetailsService.loadUserByUsername(dto.getUsername()); // kullanıcı var mı kontrolü
                 Authentication authentication = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
 
@@ -38,7 +40,7 @@ public class AuthService {
                 tokenService.storeToken(user.getUsername(), cookieDto);
                 cookieService.createCookies(cookieDto, response);
 
-                return UserResponseDto
+                return SigninResponseDto
                                 .builder()
                                 .username(user.getUsername())
                                 .role(user.getRole())
@@ -70,4 +72,7 @@ public class AuthService {
                 cookieService.refreshCookies(cookieDto, response);
         }
 
+        public void signup(SignupRequestDto dto) {
+                userDetailsService.createUser(dto);
+        }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.selahattindev.portfolio.security.service.UserDetailsImpl;
 import com.selahattindev.portfolio.security.token.TokenProvider;
+import com.selahattindev.portfolio.utils.Roles;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -44,16 +45,16 @@ public class JwtService implements TokenProvider {
 
     @Override
     public String generateAccessToken(org.springframework.security.core.userdetails.UserDetails userDetails) {
-        String role = (userDetails instanceof UserDetailsImpl u) ? u.getRole() : "USER";
+        String role = (userDetails instanceof UserDetailsImpl u) ? u.getRole() : Roles.ROLE_USER.toString();
         return generateToken(userDetails.getUsername(), role,
-                jwtDto.getACCESS_TOKEN_EXPIRATION_MS(), getAccessSigningKey());
+                jwtDto.getAccessTokenExpirationMs(), getAccessSigningKey());
     }
 
     @Override
     public String generateRefreshToken(org.springframework.security.core.userdetails.UserDetails userDetails) {
-        String role = (userDetails instanceof UserDetailsImpl u) ? u.getRole() : "USER";
+        String role = (userDetails instanceof UserDetailsImpl u) ? u.getRole() : Roles.ROLE_USER.toString();
         return generateToken(userDetails.getUsername(), role,
-                jwtDto.getREFRESH_TOKEN_EXPIRATION_MS(), getRefreshSigningKey());
+                jwtDto.getRefreshTokenExpirationMs(), getRefreshSigningKey());
     }
 
     @Override

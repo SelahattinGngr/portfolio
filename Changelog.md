@@ -17,7 +17,6 @@ All notable changes to this project will be documented in this file.
 - **İyileştirme:** Auth akışı parçalandı; `CookieFactory`, `CookieService`, `TokenService`, `TokenStoreService` gibi tek sorumluluklu bileşenlere ayrıldı (SRP).
 - **Güvenlik:** Cookie üretimi ve yönetimi merkezi `CookieService`/`CookieUtil` ile standardize edildi (HttpOnly, Secure, SameSite politikaları vurgulandı).
 - **İyileştirme:** Redis tabanlı token store soyutlandı (`TokenStoreService` → `TokenService`), token revocation ve device-id takibi için hazır pattern eklendi.
-- **Test & Operasyon:** `TokenProvider` sayesinde unit testlerde kolayca `MockTokenProvider` kullanılabilecek; bunun için test scaffold önerildi.
 
 ---
 

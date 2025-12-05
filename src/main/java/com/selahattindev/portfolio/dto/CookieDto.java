@@ -21,7 +21,7 @@ public class CookieDto {
         this.deviceId = UUID.randomUUID().toString();
         this.accessToken = jwtService.generateAccessToken(user);
         this.refreshToken = jwtService.generateRefreshToken(user);
-        this.accessTokenExpiry = (int) (jwtDto.getACCESS_TOKEN_EXPIRATION_MS() / 1000);
-        this.refreshTokenExpiry = (int) (jwtDto.getREFRESH_TOKEN_EXPIRATION_MS() / 1000);
+        this.accessTokenExpiry = (int) (jwtDto.getAccessTokenExpirationMs() / 1000);
+        this.refreshTokenExpiry = (int) (jwtDto.getRefreshTokenExpirationMs() / 1000);
     }
 }

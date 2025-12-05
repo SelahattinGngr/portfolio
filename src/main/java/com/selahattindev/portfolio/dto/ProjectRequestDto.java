@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import lombok.Data;
 
 @Data
-public class ProjectDTO {
+public class ProjectRequestDto {
     private Long id;
     private Timestamp createdAt;
     private Timestamp updatedAt;

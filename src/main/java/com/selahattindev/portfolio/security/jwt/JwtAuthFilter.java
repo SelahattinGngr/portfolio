@@ -8,11 +8,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.selahattindev.portfolio.security.service.UserDetailsServiceImpl;
+import com.selahattindev.portfolio.utils.Roles;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -37,14 +38,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String requestPath = request.getRequestURI();
-        System.out.println("Request Path: " + requestPath);
-        if (requestPath.startsWith("/auth/sign-in") || requestPath.startsWith("/auth/refresh-token")) {
+        if (pathFiltered(requestPath)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String accessToken = extractTokenFromCookie(request, "accessToken");
-        System.out.println("Access Token from Cookie: " + accessToken);
         if (accessToken == null) {
             filterChain.doFilter(request, response);
             return;
@@ -54,9 +53,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String username = jwtService.extractUsernameFromAccessToken(accessToken);
             String role = jwtService.extractRole(accessToken);
 
-            // TODO: role olmamasi durumu icin log eklenecek
             if (role == null || role.isBlank()) {
-                role = "USER";
+                System.out.println("Role bilgisi JWT içinde bulunamadı, varsayılan rol atanıyor: ROLE_USER");
+                role = Roles.ROLE_USER.toString();
             }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -67,6 +66,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         null,
                         Collections.singleton(new SimpleGrantedAuthority(role)));
                 // JWT içindeki rolü Spring Security’nin GrantedAuthority yapısına sokuyor.
+                System.out.println(authToken.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -85,5 +85,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private boolean pathFiltered(String path) {
+        return path.startsWith("/auth/signin") || path.startsWith("/auth/refresh") ||
+                path.startsWith("/auth/signup");
     }
 }

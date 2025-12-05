@@ -35,7 +35,7 @@ public class PortfolioApplication {
 			User admin = new User();
 			admin.setUsername("admin");
 			admin.setPassword(passwordEncoder.encode("Adminpass1."));
-			admin.setRoles(Roles.ADMIN.name());
+			admin.setRoles(Roles.ROLE_ADMIN.name());
 			userRepository.save(admin);
 			for (var i = 1; i <= 25; i++) {
 				User user = new User();

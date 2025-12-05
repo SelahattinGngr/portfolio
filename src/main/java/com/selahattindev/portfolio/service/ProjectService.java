@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.selahattindev.portfolio.dto.ProjectDTO;
+import com.selahattindev.portfolio.dto.ProjectRequestDto;
 import com.selahattindev.portfolio.mapper.ProjectMapper;
 import com.selahattindev.portfolio.model.Project;
 import com.selahattindev.portfolio.repository.ProjectRepository;
@@ -18,17 +18,17 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper mapper;
 
-    public List<ProjectDTO> getAllProjects() {
+    public List<ProjectRequestDto> getAllProjects() {
         return mapper.toDtoList(projectRepository.findAll());
     }
 
-    public ProjectDTO createProject(ProjectDTO projectDTO) {
+    public ProjectRequestDto createProject(ProjectRequestDto projectDTO) {
         Project project = mapper.toEntity(projectDTO);
         Project savedProject = projectRepository.save(project);
         return mapper.toDTO(savedProject);
     }
 
-    public ProjectDTO updateProject(Long id, ProjectDTO dto) {
+    public ProjectRequestDto updateProject(Long id, ProjectRequestDto dto) {
         Project existing = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
         existing.setTitle(dto.getTitle())
@@ -44,7 +44,7 @@ public class ProjectService {
         projectRepository.deleteById(id);
     }
 
-    public ProjectDTO getProjectById(Long id) {
+    public ProjectRequestDto getProjectById(Long id) {
         return mapper.toDTO(projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id)));
     }

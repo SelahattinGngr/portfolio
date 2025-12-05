@@ -11,8 +11,8 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class UserResponseDto {
-
+public class SignupRequestDto {
     private String username;
-    private String role;
+    private String email;
+    private String password;
 }

@@ -14,7 +14,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
-    private final User user;
+    private final transient User user;
 
     public String getRole() {
         return user.getRoles();
@@ -22,7 +22,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRoles()));
+        return Collections.singleton(new SimpleGrantedAuthority(user.getRoles()));
     }
 
     @Override

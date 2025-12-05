@@ -9,19 +9,30 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data
 @Entity
+@Builder
 @Table(name = "users")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class User extends BaseModel {
 
     @Column(name = "username", nullable = false, unique = true)
     private String username;
+
+    @Email
+    @Column(name = "email", nullable = true, unique = true)
+    private String email;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -32,7 +43,7 @@ public class User extends BaseModel {
     @PrePersist
     public void prePersist() {
         if (this.roles == null) {
-            this.roles = Roles.USER.name();
+            this.roles = Roles.ROLE_USER.name();
         }
 
         Timestamp now = new Timestamp(System.currentTimeMillis());

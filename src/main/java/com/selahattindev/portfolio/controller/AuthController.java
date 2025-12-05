@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.selahattindev.portfolio.dto.UserRequestDto;
-import com.selahattindev.portfolio.dto.UserResponseDto;
+import com.selahattindev.portfolio.common.response.ApiResponse;
+import com.selahattindev.portfolio.dto.SigninRequestDto;
+import com.selahattindev.portfolio.dto.SigninResponseDto;
+import com.selahattindev.portfolio.dto.SignupRequestDto;
 import com.selahattindev.portfolio.service.AuthService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,40 +24,31 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signin")
-    public ResponseEntity<UserResponseDto> signin(@RequestBody UserRequestDto dto, HttpServletResponse response) {
-        return ResponseEntity.ok(authService.signin(dto, response));
+    public ResponseEntity<ApiResponse<SigninResponseDto>> signin(@RequestBody SigninRequestDto dto,
+            HttpServletResponse response) {
+        return ResponseEntity.ok(ApiResponse.success("Giriş Başarılı", authService.signin(dto, response)));
     }
 
     @PostMapping("/signout")
-    public ResponseEntity<?> signout(@CookieValue(name = "deviceId") String deviceId,
-            @CookieValue(name = "refreshToken") String refreshToken,
+    public ResponseEntity<ApiResponse<String>> signout(@CookieValue String deviceId,
+            @CookieValue String refreshToken,
             HttpServletResponse response) {
         authService.signout(deviceId, refreshToken, response);
-        return ResponseEntity.ok("Signed out successfully");
+        return ResponseEntity.ok(ApiResponse.success("Çıkış Başarılı"));
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<ApiResponse<String>> signup(@RequestBody SignupRequestDto dto) {
+        authService.signup(dto);
+        return ResponseEntity.ok(ApiResponse.success("Kayıt Başarılı"));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<String> refreshToken(@CookieValue(name = "refreshToken") String refreshToken,
-            @CookieValue(name = "deviceId") String deviceId,
+    public ResponseEntity<ApiResponse<String>> refreshToken(@CookieValue String refreshToken,
+            @CookieValue String deviceId,
             HttpServletResponse response) {
         authService.refreshToken(refreshToken, deviceId, response);
-        return ResponseEntity.ok("Access token refreshed");
+        return ResponseEntity.ok(ApiResponse.success("Token Yenileme Başarılı"));
     }
-
-    // @PostMapping("/test")
-    // public ResponseEntity<String> testEndpoint() {
-    // return handle(() -> authService.testService());
-    // }
-
-    // private <T> ResponseEntity<?> handle(Supplier<T> supplier) {
-    // try {
-    // return ResponseEntity.ok(supplier.get());
-    // } catch (EntityNotFoundException e) {
-    // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    // } catch (Exception e) {
-    // return
-    // ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-    // }
-    // }
 
 }

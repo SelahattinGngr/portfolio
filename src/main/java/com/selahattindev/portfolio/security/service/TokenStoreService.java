@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,9 @@ public class TokenStoreService {
     }
 
     public void deleteAllTokensForUser(String username) {
-        redisTemplate.keys(TOKEN_PREFIX + username + ":*")
-                .forEach(redisTemplate::delete);
+        Set<String> keys = redisTemplate.keys(TOKEN_PREFIX + username + ":*");
+        if (keys != null && !keys.isEmpty()) {
+            keys.forEach(redisTemplate::delete);
+        }
     }
 }

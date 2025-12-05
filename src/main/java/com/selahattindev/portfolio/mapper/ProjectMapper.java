@@ -5,16 +5,16 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.selahattindev.portfolio.dto.ProjectDTO;
+import com.selahattindev.portfolio.dto.ProjectRequestDto;
 import com.selahattindev.portfolio.model.Project;
 
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
     ProjectMapper INSTANCE = Mappers.getMapper(ProjectMapper.class);
 
-    ProjectDTO toDTO(Project project);
+    ProjectRequestDto toDTO(Project project);
 
-    Project toEntity(ProjectDTO projectDTO);
+    Project toEntity(ProjectRequestDto projectDTO);
 
-    List<ProjectDTO> toDtoList(List<Project> projects);
+    List<ProjectRequestDto> toDtoList(List<Project> projects);
 }

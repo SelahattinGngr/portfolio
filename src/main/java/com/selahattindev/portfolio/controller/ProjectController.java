@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.selahattindev.portfolio.dto.ProjectDTO;
+import com.selahattindev.portfolio.dto.ProjectRequestDto;
 import com.selahattindev.portfolio.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,22 +23,22 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping
-    public List<ProjectDTO> getAllProjects() {
+    public List<ProjectRequestDto> getAllProjects() {
         return projectService.getAllProjects();
     }
 
     @GetMapping("/{id}")
-    public ProjectDTO getProjectById(Long id) {
+    public ProjectRequestDto getProjectById(Long id) {
         return projectService.getProjectById(id);
     }
 
     @PostMapping
-    public ProjectDTO createProject(@RequestBody ProjectDTO dto) {
+    public ProjectRequestDto createProject(@RequestBody ProjectRequestDto dto) {
         return projectService.createProject(dto);
     }
 
     @PutMapping("/{id}")
-    public ProjectDTO updateProject(Long id, @RequestBody ProjectDTO dto) {
+    public ProjectRequestDto updateProject(Long id, @RequestBody ProjectRequestDto dto) {
         return projectService.updateProject(id, dto);
     }
 
