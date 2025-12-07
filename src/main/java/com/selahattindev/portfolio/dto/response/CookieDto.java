@@ -1,0 +1,27 @@
+package com.selahattindev.portfolio.dto.response;
+
+import java.util.UUID;
+
+import com.selahattindev.portfolio.security.UserDetailsImpl;
+import com.selahattindev.portfolio.security.jwt.JwtDto;
+import com.selahattindev.portfolio.security.jwt.JwtService;
+
+import lombok.Data;
+
+@Data
+public class CookieDto {
+
+    private String deviceId;
+    private String accessToken;
+    private String refreshToken;
+    private int accessTokenExpiry;
+    private int refreshTokenExpiry;
+
+    public CookieDto(UserDetailsImpl user, JwtService jwtService, JwtDto jwtDto) {
+        this.deviceId = UUID.randomUUID().toString();
+        this.accessToken = jwtService.generateAccessToken(user);
+        this.refreshToken = jwtService.generateRefreshToken(user);
+        this.accessTokenExpiry = (int) (jwtDto.getAccessTokenExpirationMs() / 1000);
+        this.refreshTokenExpiry = (int) (jwtDto.getRefreshTokenExpirationMs() / 1000);
+    }
+}

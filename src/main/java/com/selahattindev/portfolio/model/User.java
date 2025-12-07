@@ -1,20 +1,11 @@
 package com.selahattindev.portfolio.model;
 
-import java.sql.Timestamp;
+import com.selahattindev.portfolio.utils.enums.Roles;
+import com.selahattindev.portfolio.utils.enums.TwoFaType;
 
-import com.selahattindev.portfolio.utils.Roles;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 @Data
@@ -40,19 +31,20 @@ public class User extends BaseModel {
     @Column(name = "roles", nullable = false)
     private String roles;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "two_fa_type", nullable = false)
+    private TwoFaType twoFaType;
+
+    @Column(name = "two_fa_secret")
+    private String twoFaSecret;
+
     @PrePersist
-    public void prePersist() {
+    @Override
+    protected void onCreate() {
+        super.onCreate();
+        this.twoFaType = TwoFaType.NONE;
         if (this.roles == null) {
             this.roles = Roles.ROLE_USER.name();
         }
-
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        this.setCreatedAt(now);
-        this.setUpdatedAt(now);
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
     }
 }

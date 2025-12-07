@@ -1,0 +1,28 @@
+ALTER TABLE projects 
+ADD COLUMN view_count INTEGER DEFAULT 0 NOT NULL;
+
+CREATE TABLE contact_messages (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message VARCHAR(1000) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE visit_logs (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ip_address VARCHAR(255),
+    user_agent VARCHAR(255),
+    endpoint VARCHAR(255),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+ALTER TABLE users 
+ADD COLUMN two_fa_type VARCHAR(20) DEFAULT 'NONE' NOT NULL;
+
+ALTER TABLE users 
+ADD COLUMN two_fa_secret VARCHAR(255);

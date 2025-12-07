@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+### [v0.5.0] - 07-12-2025
+
+**Backend Completion: 2FA Architecture, Async Queues & Security Hardening**
+
+- **Özellik (Security):** **Two-Factor Authentication (2FA)** altyapısı tamamlandı. `Google Authenticator` (TOTP) ve `Email OTP` stratejileri dinamik hale getirildi.
+- **Mimari (Auth Flow):** Login akışı monolit yapıdan çıkarılıp state-based bir yapıya evrildi; `/signin` (kimlik doğrulama) ve `/verify-2fa` (doğrulama) olarak iki aşamaya bölündü.
+- **Mimari (Async):** E-posta gönderimi için **Redis List** tabanlı özel bir **Asenkron İş Kuyruğu (Task Queue)** mimarisi geliştirildi. Producer/Consumer pattern uygulanarak ana thread bloklanmadan mail gönderimi sağlandı.
+- **İyileştirme (Redis):** Redis serializasyon stratejisi optimize edildi; Basit anahtarlar (Token, OTP) için `StringRedisTemplate`, kompleks objeler (Email DTO) için `GenericJackson2JsonRedisSerializer` ayrılarak `ClassCastException` riskleri ortadan kaldırıldı.
+- **Güvenlik:** **Refresh Token Rotation** mekanizması devreye alındı. Token yenileme işleminde eski token ve device-id Redis'ten anında silinerek "Replay Attack" ve "Zombie Token" riskleri sıfırlandı.
+- **Özellik (Analytics):** Site trafiğini ve proje görüntülenme sayılarını takip eden **Analytics Modülü** (`VisitLog` entity, `ViewCount` logic) entegre edildi.
+- **Özellik (Contact):** Ziyaretçi mesajlarını veritabanında kalıcı hale getiren **Contact Modülü** eklendi.
+- **Refactor (Clean Code):** Tüm entity'ler için `BaseModel` soyutlaması yapılarak `createdAt`/`updatedAt` gibi audit alanları ve kod tekrarları (DRY) merkezi bir yapıya alındı.
+- **Veritabanı:** Flyway migration geçmişi konsolide edildi; Analytics, Contact ve 2FA şemaları `V3` sürümünde birleştirildi.
+- **Hata Yönetimi:** `GlobalExceptionHandler` sertleştirildi. `MissingRequestCookieException` gibi istemci kaynaklı hatalar düzgünce yakalanırken, 500 hatalarında iç detayların (Information Disclosure) dışarı sızması engellendi.
+- **DevOps:** Docker Compose ortam değişkenleri ve SMTP konfigürasyonları production-ready hale getirildi.
+- **Refactor (Architecture):** Proje paket yapısı **Domain-Driven Design (DDD)** prensiplerine yaklaştırıldı; Servis katmanı `domain` (İş Mantığı) ve `infra` (Altyapı) olarak ayrıştırıldı, konfigürasyon sınıfları `config` paketinde toplandı.
+- **İyileştirme (Observability):** `JwtAuthFilter` mantığı güncellendi; `/actuator/**` uç noktaları filtre denetiminden çıkarılarak health-check işlemlerindeki log kirliliği ve performans kaybı önlendi.
+- **Özellik (2FA Setup):** Google Authenticator kurulumu için QR Kod üretim endpoint'i (`/setup-google-2fa`) ve iş mantığı eklendi.
+
+---
+
 ### [v0.4.0] - 02-11-2025
 
 **Refactor: Token abstraction, DI hardening, cookie/token services & operational polish**

@@ -3,9 +3,10 @@ package com.selahattindev.portfolio.security.jwt;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
-import com.selahattindev.portfolio.security.service.UserDetailsImpl;
-import com.selahattindev.portfolio.security.token.TokenProvider;
-import com.selahattindev.portfolio.utils.Roles;
+
+import com.selahattindev.portfolio.security.UserDetailsImpl;
+import com.selahattindev.portfolio.utils.enums.Roles;
+
 import io.jsonwebtoken.Claims; // Claims importunu ekle
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

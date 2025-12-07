@@ -14,8 +14,24 @@ POST {{url}}/signin HTTP/1.1
 Content-Type: application/json
 
 {
-  "signin": "newuser",
-  "password": "Newuser1!"
+  "signin": "selahattin1",
+  "password": "AdminPass1."
+}
+
+### 2fa verification
+POST {{url}}/verify-2fa HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "selahattin",
+  "code": "234360"
+}
+
+### setup 2fa
+POST {{url}}/setup-google-2fa HTTP/1.1
+Content-Type: application/json
+
+{
 }
 
 ### signup
@@ -23,9 +39,9 @@ POST {{url}}/signup HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "newuser",
-  "email": "nesuser1@mail.com",
-  "password": "Newuser1!"
+  "username": "selahattin1",
+  "email": "selahattingungor53@hotmail.com",
+  "password": "AdminPass1."
 }
 
 ### Admin Paneline Erişim Denemesi (ROLE_USER ile)
@@ -45,4 +61,8 @@ Content-Type: application/json
 
 ### signout
 POST {{url}}/signout HTTP/1.1
+Content-Type: application/json
+
+### analytics
+POST http://localhost:5353/api/analytics/visit HTTP/1.1
 Content-Type: application/json

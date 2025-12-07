@@ -1,18 +1,17 @@
 package com.selahattindev.portfolio.model;
 
-import java.sql.Timestamp;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 @Data
 @Entity
+@Builder
 @Table(name = "projects")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
@@ -27,29 +26,19 @@ public class Project extends BaseModel {
     @Column(name = "tech_stack", nullable = false)
     private String techStack;
 
-    @Column(name = "github_url", nullable = true)
+    @Column(name = "github_url")
     private String githubUrl;
 
-    @Column(name = "live_url", nullable = true)
+    @Column(name = "live_url")
     private String liveUrl;
 
-    public Project() {
-        this.title = "";
-        this.description = "";
-        this.techStack = "";
-        this.githubUrl = "";
-        this.liveUrl = "";
-    }
+    @Column(name = "view_count", columnDefinition = "integer default 0")
+    private int viewCount;
 
     @PrePersist
-    public void prePersist() {
-        Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
-        this.setCreatedAt(now);
-        this.setUpdatedAt(now);
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+    @Override
+    protected void onCreate() {
+        super.onCreate();
+        this.viewCount = 0;
     }
 }

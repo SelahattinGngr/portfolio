@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.selahattindev.portfolio.common.response.ApiResponse;
-import com.selahattindev.portfolio.dto.SigninResponseDto;
-import com.selahattindev.portfolio.service.UserService;
+import com.selahattindev.portfolio.dto.response.SigninResponseDto;
+import com.selahattindev.portfolio.response.ApiResponse;
+import com.selahattindev.portfolio.service.domain.UserService;
 
 import lombok.RequiredArgsConstructor;
 

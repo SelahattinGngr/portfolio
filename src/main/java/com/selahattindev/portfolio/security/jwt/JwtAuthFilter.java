@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.selahattindev.portfolio.utils.Roles;
+import com.selahattindev.portfolio.utils.enums.Roles;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,7 +40,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             String path = request.getRequestURI();
             log.info("İstek Geldi: {} | Method: {}", path, request.getMethod());
-            if (path.startsWith("/api/auth/")) {
+            if (path.equals("/api/auth/signin") ||
+                    path.equals("/api/auth/signup") ||
+                    path.equals("/api/auth/refresh") ||
+                    path.equals("/api/auth/verify-2fa") ||
+                    path.startsWith("/actuator")) {
                 filterChain.doFilter(request, response);
                 return;
             }
