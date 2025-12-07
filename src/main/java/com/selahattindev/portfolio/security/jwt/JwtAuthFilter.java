@@ -39,22 +39,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String path = request.getRequestURI();
-            log.info("İstek Geldi: {} | Method: {}", path, request.getMethod());
+            String method = request.getMethod();
             if (path.equals("/api/auth/signin") ||
                     path.equals("/api/auth/signup") ||
                     path.equals("/api/auth/refresh") ||
                     path.equals("/api/auth/verify-2fa") ||
-                    path.startsWith("/actuator")) {
+                    path.startsWith("/actuator") ||
+                    (path.startsWith("/api/projects") && method.equals("GET"))) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
             String accessToken = extractTokenFromCookie(request, "accessToken");
-            if (accessToken != null) {
-                log.info("Token Bulundu: {}...", accessToken.substring(0, 10)); // İlk 10 karakteri bas
-            } else {
-                log.warn("Token BULUNAMADI! Cookie gelmiyor olabilir.");
-            }
             if (accessToken != null && jwtService.validateAccessToken(accessToken)) {
 
                 String username = jwtService.extractUsernameFromAccessToken(accessToken);

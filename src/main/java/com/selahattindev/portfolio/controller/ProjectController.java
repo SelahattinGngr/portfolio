@@ -3,23 +3,16 @@ package com.selahattindev.portfolio.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.selahattindev.portfolio.dto.request.ProjectRequestDto;
 import com.selahattindev.portfolio.service.domain.ProjectService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/admin/projects")
+@RequestMapping("/api/projects")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -30,23 +23,25 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}")
-    public ProjectRequestDto getProjectById(Long id) {
+    public ProjectRequestDto getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ProjectRequestDto createProject(@RequestBody ProjectRequestDto dto) {
         return projectService.createProject(dto);
     }
 
     @PutMapping("/{id}")
-    public ProjectRequestDto updateProject(Long id, @RequestBody ProjectRequestDto dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ProjectRequestDto updateProject(@PathVariable Long id, @RequestBody ProjectRequestDto dto) {
         return projectService.updateProject(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProject(Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
     }
-
 }

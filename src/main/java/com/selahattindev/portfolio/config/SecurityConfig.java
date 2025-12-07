@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // EKLE BUNU
@@ -48,7 +49,8 @@ public class SecurityConfig {
                                                                 "/api/auth/refresh",
                                                                 "/api/auth/verify-2fa")
                                                 .permitAll()
-                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/projects/**")
+                                                .permitAll()
                                                 .requestMatchers("/api/analytics/**").permitAll()
                                                 .requestMatchers("/api/contact/**").permitAll()
                                                 .requestMatchers("/actuator/**").permitAll()
