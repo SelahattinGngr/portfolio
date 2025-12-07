@@ -3,12 +3,13 @@ package com.selahattindev.portfolio.security.jwt;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User; // Spring Security User
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -37,40 +37,44 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String requestPath = request.getRequestURI();
-        if (pathFiltered(requestPath)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String accessToken = extractTokenFromCookie(request, "accessToken");
-        if (accessToken == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (jwtService.validateAccessToken(accessToken)) {
-            String username = jwtService.extractUsernameFromAccessToken(accessToken);
-            String role = jwtService.extractRole(accessToken);
-
-            if (role == null || role.isBlank()) {
-                System.out.println("Role bilgisi JWT içinde bulunamadı, varsayılan rol atanıyor: ROLE_USER");
-                role = Roles.ROLE_USER.toString();
+        try {
+            String path = request.getRequestURI();
+            log.info("İstek Geldi: {} | Method: {}", path, request.getMethod());
+            if (path.startsWith("/api/auth/")) {
+                filterChain.doFilter(request, response);
+                return;
             }
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            String accessToken = extractTokenFromCookie(request, "accessToken");
+            if (accessToken != null) {
+                log.info("Token Bulundu: {}...", accessToken.substring(0, 10)); // İlk 10 karakteri bas
+            } else {
+                log.warn("Token BULUNAMADI! Cookie gelmiyor olabilir.");
+            }
+            if (accessToken != null && jwtService.validateAccessToken(accessToken)) {
+
+                String username = jwtService.extractUsernameFromAccessToken(accessToken);
+                String role = jwtService.extractRoleFromAccessToken(accessToken);
+
+                if (role == null || role.isBlank()) {
+                    log.warn("Rol bulunamadı, USER atanıyor.");
+                    role = Roles.ROLE_USER.toString();
+                }
+
+                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+
+                UserDetails userDetails = new User(username, "", authorities);
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        Collections.singleton(new SimpleGrantedAuthority(role)));
-                // JWT içindeki rolü Spring Security’nin GrantedAuthority yapısına sokuyor.
-                System.out.println(authToken.getAuthorities());
+                        authorities);
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+        } catch (Exception e) {
+            log.error("Security Filter Hatası: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
@@ -79,16 +83,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
         if (request.getCookies() == null)
             return null;
-
         return Arrays.stream(request.getCookies())
                 .filter(c -> cookieName.equals(c.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
-    }
-
-    private boolean pathFiltered(String path) {
-        return path.startsWith("/auth/signin") || path.startsWith("/auth/refresh") ||
-                path.startsWith("/auth/signup");
     }
 }

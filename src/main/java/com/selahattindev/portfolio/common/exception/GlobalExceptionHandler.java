@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException; // EKLENDİ
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -24,8 +26,24 @@ public class GlobalExceptionHandler {
                 ex.getBindingResult().getFieldErrors()
                                 .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
 
+                log.warn("Validation failed: {}", errors);
+
                 return ResponseEntity.badRequest()
-                                .body(ApiResponse.error("Validation failed: " + errors, "VALIDATION_ERROR"));
+                                .body(ApiResponse.error("Validasyon hatası", "VALIDATION_ERROR"));
+        }
+
+        @ExceptionHandler(MissingRequestCookieException.class)
+        public ResponseEntity<ApiResponse<Object>> handleMissingCookie(MissingRequestCookieException ex) {
+                log.warn("Eksik Cookie: {}", ex.getCookieName());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(ApiResponse.error("Gerekli cookie bulunamadı: " + ex.getCookieName(),
+                                                "MISSING_COOKIE"));
+        }
+
+        @ExceptionHandler(BadCredentialsException.class)
+        public ResponseEntity<ApiResponse<Object>> handleBadCredentials(BadCredentialsException ex) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                .body(ApiResponse.error("Kullanıcı adı veya şifre hatalı", "BAD_CREDENTIALS"));
         }
 
         @ExceptionHandler(ResourceNotFoundException.class)
@@ -48,9 +66,10 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiResponse<Object>> handleGeneric(Exception ex) {
-                // Burada stack trace loglanmalı ama kullanıcıya gösterilmemeli
-                ex.printStackTrace();
+                log.error("Beklenmeyen Hata: ", ex);
+
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(ApiResponse.error(ex.getMessage(), "INTERNAL_ERROR"));
+                                .body(ApiResponse.error("Sunucu tarafında beklenmeyen bir hata oluştu.",
+                                                "INTERNAL_ERROR"));
         }
 }

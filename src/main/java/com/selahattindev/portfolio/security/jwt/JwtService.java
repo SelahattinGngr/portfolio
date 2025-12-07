@@ -1,15 +1,12 @@
 package com.selahattindev.portfolio.security.jwt;
 
 import java.util.Date;
-
 import javax.crypto.SecretKey;
-
 import org.springframework.stereotype.Component;
-
 import com.selahattindev.portfolio.security.service.UserDetailsImpl;
 import com.selahattindev.portfolio.security.token.TokenProvider;
 import com.selahattindev.portfolio.utils.Roles;
-
+import io.jsonwebtoken.Claims; // Claims importunu ekle
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -31,6 +28,7 @@ public class JwtService implements TokenProvider {
         return Keys.hmacShaKeyFor(jwtDto.getRefreshSecretKey().getBytes());
     }
 
+    // --- Generate Token ---
     private String generateToken(String username, String role, long expirationMs, SecretKey key) {
         return Jwts.builder()
                 .subject(username)
@@ -40,8 +38,6 @@ public class JwtService implements TokenProvider {
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
-
-    // ---- Implementations of TokenProvider ----
 
     @Override
     public String generateAccessToken(org.springframework.security.core.userdetails.UserDetails userDetails) {
@@ -57,51 +53,7 @@ public class JwtService implements TokenProvider {
                 jwtDto.getRefreshTokenExpirationMs(), getRefreshSigningKey());
     }
 
-    @Override
-    public boolean validateAccessToken(String token) {
-        return validateToken(token, getAccessSigningKey());
-    }
-
-    @Override
-    public boolean validateRefreshToken(String token) {
-        return validateToken(token, getRefreshSigningKey());
-    }
-
-    @Override
-    public String extractUsernameFromAccessToken(String token) {
-        return extractUsername(token, getAccessSigningKey());
-    }
-
-    @Override
-    public String extractUsernameFromRefreshToken(String token) {
-        return extractUsername(token, getRefreshSigningKey());
-    }
-
-    @Override
-    public String extractRoleFromAccessToken(String token) {
-        return extractRole(token);
-    }
-
-    // ---- JWT-specific utilities ----
-
-    public String extractRole(String token) {
-        return Jwts.parser()
-                .verifyWith(getAccessSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("role", String.class);
-    }
-
-    private String extractUsername(String token, SecretKey key) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-    }
-
+    // --- Validate Token ---
     private boolean validateToken(String token, SecretKey key) {
         try {
             Jwts.parser()
@@ -115,14 +67,57 @@ public class JwtService implements TokenProvider {
         }
     }
 
-    private boolean isTokenExpired(String token, SecretKey key) {
-        Date expiration = Jwts.parser()
+    @Override
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, getAccessSigningKey());
+    }
+
+    @Override
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, getRefreshSigningKey());
+    }
+
+    // --- Extract Data ---
+
+    private Claims extractAllClaims(String token, SecretKey key) {
+        return Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getExpiration();
-        return expiration.before(new Date());
+                .getPayload();
+    }
+
+    @Override
+    public String extractUsernameFromAccessToken(String token) {
+        return extractAllClaims(token, getAccessSigningKey()).getSubject();
+    }
+
+    @Override
+    public String extractUsernameFromRefreshToken(String token) {
+        return extractAllClaims(token, getRefreshSigningKey()).getSubject();
+    }
+
+    @Override
+    public String extractRoleFromAccessToken(String token) {
+        return extractRole(token);
+    }
+
+    public String extractRole(String token) {
+        try {
+            Claims claims = extractAllClaims(token, getAccessSigningKey());
+            String role = claims.get("role", String.class);
+            if (role == null) {
+                return Roles.ROLE_USER.toString();
+            }
+            return role;
+        } catch (Exception e) {
+            return Roles.ROLE_USER.toString();
+        }
+    }
+
+    // --- Expiration ---
+    private boolean isTokenExpired(String token, SecretKey key) {
+        return extractAllClaims(token, key).getExpiration().before(new Date());
     }
 
     public boolean isAccessTokenExpired(String token) {

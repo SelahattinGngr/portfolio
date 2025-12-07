@@ -2,6 +2,7 @@ package com.selahattindev.portfolio.controller;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,8 +17,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/api/admin/projects")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class ProjectController {
 
     private final ProjectService projectService;

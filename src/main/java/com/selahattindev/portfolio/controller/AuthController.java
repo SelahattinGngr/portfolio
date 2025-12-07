@@ -14,10 +14,11 @@ import com.selahattindev.portfolio.dto.SignupRequestDto;
 import com.selahattindev.portfolio.service.AuthService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -38,7 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<String>> signup(@RequestBody SignupRequestDto dto) {
+    public ResponseEntity<ApiResponse<String>> signup(@RequestBody @Valid SignupRequestDto dto) {
         authService.signup(dto);
         return ResponseEntity.ok(ApiResponse.success("Kayıt Başarılı"));
     }
